@@ -1,0 +1,26 @@
+league:
+  name: "NYT Mini League"
+  timezone: "America/New_York"
+
+week:
+  # Tuesday=1 if Monday=0 (Python weekday). We'll compute week start as Tuesday.
+  week_start_weekday: 1
+  length_days: 7
+
+penalties:
+  days_to_complete: 31
+  incomplete_penalty_seconds: 20   # you said "worst in division + 20" parameterize it here
+  late_solve_penalty_per_day: 0    # set to 0 for now (subscription fairness penalty disabled)
+
+divisions:
+  target_division_size: 7
+  max_divisions: 12
+  base_divisions: 1                # start with 1 division until enough players show up
+  promote_relegate_default: 1
+  promote_relegate_if_oversize: 2
+  oversize_threshold: 2            # if division >= target + threshold => move 2 instead of 1
+  inactive_weeks_to_drop: 4        # "graveyard" rule
+
+storage:
+  solves_path: "data/solves.jsonl"
+  computed_dir: "data/computed"
