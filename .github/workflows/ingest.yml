@@ -1,0 +1,48 @@
+name: Ingest NYT Mini + Compute
+
+on:
+  schedule:
+    - cron: "15 * * * *"   # hourly at :15 UTC
+    - cron: "30 5 * * *"   # daily compute around 01:30 ET (adjust if you want)
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          pip install -r pipeline/requirements.txt
+
+      - name: Fetch solves
+        env:
+          NYT_S_COOKIE: ${{ secrets.NYT_S_COOKIE }}
+        run: |
+          python pipeline/fetch.py
+
+      - name: Compute standings
+        run: |
+          python pipeline/compute.py
+
+      - name: Commit changes (if any)
+        run: |
+          git config user.name "nyt-mini-bot"
+          git config user.email "nyt-mini-bot@users.noreply.github.com"
+          git add data/ pipeline/config.yaml || true
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Update NYT Mini data"
+            git push
+          fi
